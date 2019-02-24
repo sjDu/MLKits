@@ -73,21 +73,18 @@ function splitDataset(data, testCount) {
 // without mutation version
 function minMax(data, featureCount) {
 
-  const a = _.chain(data[0])
-    .map((n, i) => {
-      const column = data.map(row => row[i])
-      if(i >= featureCount) {
-        return column 
+  return _.chain(data)
+  	.unzip()
+    .map((column, i) => {
+    	if(i >= featureCount) {
+        return column
       }
       const min = _.min(column)
       const max = _.max(column)
 
-      return _.map(column, it => (it - min)/(max - min))
+      return  _.map(column, it => (it - min)/(max - min))
 
-    })
-  	
-   return _.zip(...a)
-
+    }).unzip().value() 
 }
 
 //Stephen's version
