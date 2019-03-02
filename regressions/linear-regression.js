@@ -9,6 +9,7 @@ class LinearRegression {
 
         this.features = this.processFeatures(features)
         this.labels = tf.tensor(labels)
+        this.mseHistory = []
 
 
 
@@ -60,6 +61,8 @@ class LinearRegression {
     train() {
         for( let i = 0; i < this.options.iterations; i++) {
             this.gradientDescent()
+            this.recordMSE()
+            this.updateLearningRate() 
         }
     }
 
@@ -101,6 +104,30 @@ class LinearRegression {
 
         return features.sub(mean).div(variance.pow(0.5))
 
+    }
+
+    recordMSE() {
+        const mse = this.features
+            .matMul(this.weights)
+            .sub(this.labels)
+            .pow(2)
+            .sum()
+            .div(this.features.shape[0])
+            .get()
+
+        this.mseHistory.unshift(mse)
+    }
+
+    updateLearningRate() {
+        if (this.mseHistory.length < 2) {
+            return
+        }
+
+        if (this.mseHistory[0] > this.mseHistory[1]) {
+            this.options.learningRate /= 2
+        } else {
+            this.options.learningRate *= 1.05
+        }
     }
 }
 
