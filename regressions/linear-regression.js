@@ -3,6 +3,10 @@ const _ = require('lodash')
 
 class LinearRegression {
     constructor(features, labels, options) {
+        const { mean, variance } = tf.moments(tf.tensor(features), 0)
+        this.mean = mean
+        this.variance = variance 
+
         this.features = this.processFeatures(features)
         this.labels = tf.tensor(labels)
 
@@ -84,13 +88,7 @@ class LinearRegression {
 
     processFeatures(features) {
         features = tf.tensor(features)
-
-        if(this.mean && this.variance){
-            features = features.sub(this.mean).div(this.variance.pow(0.5))
-        } else {
-            features = this.standardize(features)
-        }
-
+        features = this.standardize(features)
         features = tf.ones([features.shape[0],1]).concat(features, 1)
 
 
@@ -99,10 +97,7 @@ class LinearRegression {
     }
 
     standardize(features) {
-        const { mean, variance } = tf.moments(features, 0) 
-
-        this.mean = mean
-        this.variance = variance
+        const { mean, variance } = this
 
         return features.sub(mean).div(variance.pow(0.5))
 
