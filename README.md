@@ -14,4 +14,4 @@ Using tensorflow and mathematics analysis to implement some ML models from scrat
 - Multinominal Logistic Regression: [regressions/multinominal-logistic-regression/logistic-regression.js](regressions/multinominal-logistic-regression/logistic-regression.js)
     - multi-labels
 
-Here is a note by my friend *gama79530* about the mathematical formulas [Note](https://sjdu.github.io/MLKits/note.html)
+Here is a note by my friend *gama79530* about the mathematical formulas [Note](note.html)
