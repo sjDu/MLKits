@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+            });
+        </script>
+        <style>
+            body {
+                color: white;
+                background-color: black;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid;
+            }
+            a {
+                color: cyan;
+            }
+            a:hover {
+                color: darkcyan;
+            }
+        </style>
+        <title>Note by gama79530: Coursera-Machine Learning-2019</title>
+    </head>
+    <body>
+        <h1>Note by gama79530: Coursera-Machine Learning-2019</h1>
+        <hr>
+        <h2>Catalog</h2>
+        <ul>
+            <li><a href="#Context">Context</a></li>
+            <li><a href="#Experience">Experience</a></li>
+            <li><a href="#Machine_Learning_Definition">Machine Learning Definition</a></li>
+            <li><a href="#Classes_of_Machine_Learning_Algorithm">Classes of Machine Learning Algorithm</a></li>
+            <li><a href="#Problems">Problems</a></li>
+            <li><a href="#Linear_regression">Linear regression</a></li>
+            <li><a href="#Logistic_regression">Logistic regression</a></li>
+            <li><a href="#Neuron_network">Neuron network</a></li>
+        </ul>
+        <hr>
+        
+        <h3 id="Context">Context</h3>
+        <ol>
+            <li>Notation
+                <ul>
+                    <li>$m$ : number of training example</li>
+                    <li>$n$ : number of features</li>
+                    <li>$x^{(i)} =  \begin{bmatrix}
+                                        x_{1}^{(i)} & x_{2}^{(i)} & \cdots & x_{n}^{(i)}
+                                    \end{bmatrix}$ : i-th input variable / features</li>
+                    <li>$y^{(i)}$ : i-th output variable / target variable</li>
+                    <li>$h_{\theta}(x)$ : hypothesis function with parameters $\theta$ and input features $x$</li>
+                    <li>$J(\theta)$ : cost function with parameters $\theta$</li>
+                    <li>$\alpha$ : learning rate</li>
+                    <li>$\lambda$ : regularization parameter</li>
+                </ul>
+            </li><br>
+            <li>Vectorized Notation
+                <ul>
+                    <li>$X =    \begin{bmatrix}
+                                    1 & \;-\;x^{(1)}\;-\;\\
+                                    1 & \;-\;x^{(2)}\;-\;\\
+                                    \vdots & \vdots\\
+                                    1 & \;-\;x^{(m)}\;-\;
+                                \end{bmatrix}$</li>
+                    <li>$Y =    \begin{bmatrix}
+                                    y^{(1)}\\
+                                    y^{(2)}\\
+                                    \vdots\\
+                                    y^{(m)}\\
+                                \end{bmatrix}$</li>
+                    <li>$\theta =   \begin{bmatrix}
+                                        \theta_{0}\\
+                                        \theta_{1}\\
+                                        \vdots\\
+                                        \theta_{n}\\
+                                    \end{bmatrix}$</li>
+                    <li>$   \begin{cases}
+                                X \in \mathbb{R}^{m \times (n+1)}\\
+                                Y \in \mathbb{R}^{m \times 1}\\
+                                \theta \in \mathbb{R}^{(n+1) \times 1}
+                            \end{cases}$</li>
+                </ul>
+            </li><br>
+            <li>Important functions
+                <ul>
+                    <li>Sigmoid function : $\sigma(z) = \frac{1}{1 + e^{-z}}$</li>
+                </ul>
+            </li>
+        </ol>
+        <h3 id="Experience">Experience</h3>
+        <ol>
+            <li>Useful plot
+                <ul>
+                    <li>Contour plot</li>
+                    <li>number_of_iteration - cost plot</li>
+                </ul>
+            </li><br>
+            <li>Gradient descent
+                <ul>
+                    <li>If $\alpha$ is too small : slow convergence.</li>
+                    <li>If $\alpha$ is too large : may not decrease on every iteration and thus may not converge.</li>
+                    <li>Try learning rate 3fold (i.e. 1, 0.3, 0.1, 0.03, 0.01, ...)</li>
+                    <li>Debugging gradient descent : Make a plot with number of iterations on the x-axis. Now plot the cost function, $J(\theta)$ over the number of iterations of gradient descent. If $J(\theta)$ ever increases, then you probably need to decrease $\alpha$.</li>
+                    <li>Automatic convergence test : Declare convergence if $J(\theta)$ decreases by less than $T_{converge}$ in one iteration, where $T_{converge}$ is some small value such as $10^{3}$ However in practice it's difficult to choose this threshold value.</li>
+                </ul>
+            </li><br>
+            <li>Feature scaling
+                <ul>
+                    <li>Feature scaling is a method used to normalize the range of independent variables or features of data.</li>
+                    <li>Mean norminazion : for each feature $x_{i}$ , $x'_{i} = \frac{x_{i}-\mu_{i}}{s_{i}}$ where $\mu_{i}$ is the average of i-th feature and $s_{i}$ is either the range of i-th feature or the standard deviation of i-th feature.</li>
+                </ul>
+            </li><br>
+            <li>Underfitting and overfitting
+                <ul>
+                    <li>Underfitting (or high bias) is when the form of our hypothesis function h maps poorly to the trend of the data.</li>
+                    <li>Overfitting (or high variance) is caused by a hypothesis function that fits the available data but does not generalize well to predict new data. </li>
+                    <li>Solution of overfitting : reduce the number of features (manually select or use a model selection algorithm) , regularization</li>
+                </ul>
+            </li><br>
+            <li>Regularization
+                <ul>
+                    <li>Regularization works well when we have a lot of slightly useful features.</li>
+                    <li>$J_{regularization}(\theta) = J(\theta) + \frac{\lambda}{2m} \sum_{j = 1}^{n} \theta_{j}^{2}$</li>
+                    <li>$   \begin{cases}
+                                \frac{\partial J_{regularization}(\theta)}{\partial \theta_{0}} = \frac{\partial J(\theta)}{\partial \theta_{0}}\\ 
+                                \frac{\partial J_{regularization}(\theta)}{\partial \theta_{j}} = \frac{\partial J(\theta)}{\partial \theta_{j}} + (\frac{\lambda}{m})\theta_{j} & \text{if }1 \leq j \leq n
+                            \end{cases}$</li>
+                </ul>
+            </li><br>
+            <li>Non-linear hypotheses
+                <ul>
+                    <li>If we want to use all i-th-order features in hypothesis function, then we have $\sum_{t = 1}^{i}\binom{n + t - 1}{t}$ terms in our hypothesis function.</li>
+                    <li>This number grows very quickly as $i$ increasing when $n$ is large.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3 id="Machine_Learning_Definition">Machine Learning Definition</h3>
+        <ol>
+            <li>Arthur Samuel (1959). Field of study that gives computers the ability to learn without being explicitly programmed.</li><br>
+            <li>Tom Mitchell (1998) Well-posed Learning Problem : A computer program is said to learn from experience <b>E</b> with respect to some task <b>T</b> and some performance measure <b>P</b>, if its performance on T, as measured by P, improves with experience E.</li>
+        </ol>
+        
+        <h3 id="Classes_of_Machine_Learning_Algorithm">Classes of Machine Learning Algorithm</h3>
+        <ol>
+            <li>Supervised learning
+                <ul>
+                    <li>In supervised learning, we are given a data set and already know what our correct output should look like, having the idea that there is a relationship between the input and the output.</li>
+                    <li>Supervised learning problems are categorized into "regression" and "classification" problems.</li>
+                    <li>Regression problem : continuous output</li>
+                    <li>Classification problem : discrete output</li>
+                </ul>
+            </li><br>
+            <li>Unsupervised learning
+                <ul>
+                    <li>Unsupervised learning allows us to approach problems with little or no idea what our results should look like. We can derive structure from data where we don't necessarily know the effect of the variables.</li>
+                    <li>With unsupervised learning there is no feedback based on the prediction results.</li>
+                </ul>
+            </li><br>
+            <li>Reinforcement learning</li><br>
+            <li>Recommender systems</li>
+        </ol>
+        
+        <h3 id="Problems">Problems</h3>
+        <ol>
+            <li>Binary classification
+                <ul>
+                    <li>Possible prediction : $y \in \{0 , 1\}$</li>
+                    <li>Build a probability function model $P(y = 1 | x;\theta)$ and determine a threshold value $T$, we can predict y = 1 if $P(y = 1|x;\theta) \geq T$ and predict y = 0 otherwise.</li>
+                    <li>Decision boundary definition : $\{ x : P(y = 1 | x;\theta) = T\}$</li>
+                    <li>Logistic regression solution : use logistic regression model $h_{\theta}(x)$ and let $P(y = 1 | x;\theta) = h_{\theta}(x)$</li>
+                </ul>
+            </li><br>
+            <li>Multiclass classification
+                <ul>
+                    <li>Possible prediction : $y \in \{0 , 1 , \cdots , n\}$</li>
+                    <li>One-vs-all (or one-vs-rest) solution
+                        <ul style="list-style-type: lower-roman">
+                            <li>For each $i \in \{0 , 1 , \cdots , n\}$ , we can change the problem into binary classification problem by only classifying whether $y = i$ or not.</li>
+                            <li>Predict y = i if $P(y = i | x;\theta^{(i)}) = \max\limits_{0 \leq j \leq n} P(y = j | x;\theta^{(j)})$ , where $P(y = i | x;\theta^{(i)})$ denote the probability function of i-th binary classification problem.</li>
+                            <li>Logistic regression solution : use logistic regression model $h_{\theta^{(i)}}(x)$ to be the solution of i-th binary classification problem "whether $y = i$ or not" and let $P(y = i | x;\theta^{(i)}) = h_{\theta^{(i)}}(x)$ </li>                            
+                        </ul>
+                    </li>
+                    <li>Neuron network solution
+                        <ul style="list-style-type: lower-roman">
+                            <li>$y \in \overbrace{\left\{   \begin{bmatrix}
+                                                                1\\
+                                                                0\\
+                                                                0\\
+                                                                \vdots\\
+                                                                0
+                                                            \end{bmatrix} ,     \begin{bmatrix}
+                                                                                    0\\
+                                                                                    1\\
+                                                                                    0\\
+                                                                                    \vdots\\
+                                                                                    0
+                                                                                \end{bmatrix} , \cdots ,    \begin{bmatrix}
+                                                                                                                0\\
+                                                                                                                0\\
+                                                                                                                0\\
+                                                                                                                \vdots\\
+                                                                                                                1
+                                                                                                            \end{bmatrix}\right\}}^{(n + 1)\text{ possible outputs}}$</li>
+                            <li>Use forward propagation and backward propagation to train the NN model.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3 id="Linear_regression">Linear regression</h3>
+        <ol>
+            <li>Hypothesis & Cost function
+                <ul>
+                    <li>$h_{\theta}(x) = \theta_{0} + \theta_{1}x_{1} + \theta_{2}x_{2} + \cdots + \theta_{n}x_{n}$</li>
+                    <li>$J(\theta) = \frac{1}{2m} \sum_{i = 1}^{m} (h_{\theta}(x^{(i)})-y^{(i)})^{2}$</li>
+                </ul>
+            </li><br>
+            <li>Hypothesis & Cost function(Vectorized)
+                <ul>
+                    <li>$h_{\theta}(X) = X\theta$</li>
+                    <li>$J(\theta) = \frac{1}{2m}   \begin{Vmatrix}
+                                                        X\theta - Y
+                                                    \end{Vmatrix}^{2} = (\frac{1}{2m})(X\theta - Y)^{T}(X\theta - Y)$</li>
+                </ul>
+            </li><br>
+            <li>Gradient descent
+                <ul>
+                    <li>$   \begin{cases}
+                                \frac{\partial J(\theta)}{\partial \theta_{0}} = \frac{1}{m} \sum_{i = 1}^{m} (h_{\theta}(x^{(i)}) - y^{(i)})\\
+                                \frac{\partial J(\theta)}{\partial \theta_{1}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{1}^{(i)}]\\
+                                \frac{\partial J(\theta)}{\partial \theta_{2}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{2}^{(i)}]\\
+                                \quad\quad\quad\quad\quad\quad\quad\quad\vdots\\
+                                \frac{\partial J(\theta)}{\partial \theta_{n}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{n}^{(i)}]
+                            \end{cases}$</li>
+                    <li>$   \left\{\begin{matrix}
+                                \theta_{0} := \theta_{0} - \alpha\frac{\partial J(\theta)}{\partial \theta_{0}}\\
+                                \theta_{1} := \theta_{1} - \alpha\frac{\partial J(\theta)}{\partial \theta_{1}}\\
+                                \vdots \\
+                                \theta_{n} := \theta_{n} - \alpha\frac{\partial J(\theta)}{\partial \theta_{n}}\\
+                            \end{matrix}\right.$</li>
+                    <li>Summary : For all $1 \leq i \leq m$ and $0 \leq j \leq n$ , let $x_{0}^{(i)} = 1$, then     $\begin{cases}
+                                                                                                                        \frac{\partial J(\theta)}{\partial \theta_{j}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{j}^{(i)}]\\
+                                                                                                                        \theta_{j} := \theta_{j} - \alpha\frac{\partial J(\theta)}{\partial \theta_{j}}\\                                     
+                                                                                                                    \end{cases}$</li>
+                </ul>
+            </li><br>
+            <li>Gradient descent(Vectorized)
+                <ul>
+                    <li>$   \begin{bmatrix}
+                                \theta_{0}\\
+                                \theta_{1}\\
+                                \vdots\\
+                                \theta_{n}
+                                \end{bmatrix} :=    \begin{bmatrix}
+                                                        \theta_{0}\\
+                                                        \theta_{1}\\
+                                                        \vdots\\
+                                                        \theta_{n}
+                                                    \end{bmatrix} - (\frac{\alpha}{m})  \begin{bmatrix} 
+                                                                                            1 & 1 & \cdots & 1\\
+                                                                                            x_{1}^{(1)} & x_{1}^{(2)} & \cdots & x_{1}^{(m)}\\
+                                                                                            \vdots & \vdots & & \vdots\\
+                                                                                            x_{n}^{(1)} & x_{n}^{(2)} & \cdots & x_{n}^{(m)}\\
+                                                                                        \end{bmatrix}   \begin{bmatrix}
+                                                                                                            \theta_{0} + \theta_{1}x_{1}^{(1)} + \cdots + \theta_{n}x_{n}^{(1)} - y^{(1)}\\
+                                                                                                            \theta_{0} + \theta_{1}x_{1}^{(2)} + \cdots + \theta_{n}x_{n}^{(2)} - y^{(2)}\\
+                                                                                                            \vdots\\
+                                                                                                            \theta_{0} + \theta_{1}x_{1}^{(m)} + \cdots + \theta_{n}x_{n}^{(m)} - y^{(m)}
+                                                                                                        \end{bmatrix}$</li>
+                            <li>Summary : $\theta := \theta - (\frac{\alpha}{m})X^{T}(X\theta - Y)$</li>
+                </ul>
+            </li><br>
+            <li>Normal equation
+                <ul>
+                    <li>$\theta := (X^{T}X - \lambda L)^{-1}X^{T}Y$ where $L =  \begin{bmatrix}
+                                                                                    0 & & & &\\
+                                                                                    & 1 & & &\\
+                                                                                    & & 1 & &\\
+                                                                                    & & & \ddots & \\
+                                                                                    & & & & 1
+                                                                                \end{bmatrix}$</li><br>
+                    <li><table>
+                            <tr>
+                                <td><b>Gradient Descent</b></td>
+                                <td><b>Normal Equation</b></td>
+                            </tr>
+                            <tr>
+                                <td>Need to choose $\alpha$</td>
+                                <td>No need to choose $\alpha$</td>
+                            </tr>
+                            <tr>
+                                <td>Needs many iterations</td>
+                                <td>No need to iterate</td>
+                            </tr>
+                            <tr>
+                                <td>$O(kn^{2})$</td>
+                                <td>$O(n^{3})$, need to calculate inverse of $(X^{T}X + \lambda L)$</td>
+                            </tr>
+                            <tr>
+                                <td>Works well when n is large</td>
+                                <td>Slow if n is very large</td>
+                            </tr>
+                        </table></li>
+                </ul>
+            </li><br>
+            <li>Extending - polynomial regression
+                <ul>
+                    <li>Add some ploynomial features in hypothesis function $h_{\theta}(x)$ , such as $h_{\theta}(x) = x_{1} + x_{2} + x_{1}x_{2}$</li>
+                    <li>In this case,we can regard $x_{1}x_{2}$ as feature $x_{3}$ and change polynomial regression problem into linear regression problem.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3 id="Logistic_regression">Logistic regression</h3>
+        <ol>
+            <li>Hypothesis & Cost function
+                <ul>
+                    <li>$h_{\theta}(x) = \sigma(\theta_{0} + \theta_{1}x_{1} + \theta_{2}x_{2} + \cdots + \theta_{n}x_{n}) =\frac{1}{1 + e^{-(\theta_{0} + \theta_{1}x_{1} + \theta_{2}x_{2} + \cdots + \theta_{n}x_{n})}}$</li>
+                    <li>$J(\theta) = (-\frac{1}{m})\sum_{i = 1}^{m}[y^{(i)}\log h_{\theta}(x^{(i)}) + (1 - y^{(i)})\log(1 - h_{\theta}(x^{(i)}))]$</li>
+                </ul>
+            </li><br>
+            <li>Hypothesis & Cost function(Vectorized)
+                    <ul>
+                        <li>$h_{\theta}(X) = \sigma(X\theta)$</li>
+                        <li>$J(\theta) = (-\frac{1}{m})[Y^{T}\log(h_{\theta}(X)) + (1 - Y)^{T}\log(1 - h_{\theta}(X))]$</li>
+                    </ul>
+            </li><br>
+            <li>Gradient descent
+                <ul>
+                    <li>$   \begin{cases}
+                                \frac{\partial J(\theta)}{\partial \theta_{0}} = \frac{1}{m} \sum_{i = 1}^{m} (h_{\theta}(x^{(i)}) - y^{(i)})\\
+                                \frac{\partial J(\theta)}{\partial \theta_{1}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{1}^{(i)}]\\
+                                \frac{\partial J(\theta)}{\partial \theta_{2}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{2}^{(i)}]\\
+                                \quad\quad\quad\quad\quad\quad\quad\quad\vdots\\
+                                \frac{\partial J(\theta)}{\partial \theta_{n}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{n}^{(i)}]
+                            \end{cases}$</li>
+                    <li>$   \left\{\begin{matrix}
+                                \theta_{0} := \theta_{0} - \alpha\frac{\partial J(\theta)}{\partial \theta_{0}}\\
+                                \theta_{1} := \theta_{1} - \alpha\frac{\partial J(\theta)}{\partial \theta_{1}}\\
+                                \vdots \\
+                                \theta_{n} := \theta_{n} - \alpha\frac{\partial J(\theta)}{\partial \theta_{n}}\\
+                            \end{matrix}\right.$</li>
+                    <li>Summary : For all $1 \leq i \leq m$ and $0 \leq j \leq n$ , let $x_{0}^{(i)} = 1$, then     $\begin{cases}
+                                                                                                                        \frac{\partial J(\theta)}{\partial \theta_{j}} = \frac{1}{m} \sum_{i = 1}^{m} [(h_{\theta}(x^{(i)}) - y^{(i)})x_{j}^{(i)}]\\
+                                                                                                                        \theta_{j} := \theta_{j} - \alpha\frac{\partial J(\theta)}{\partial \theta_{j}}\\                                     
+                                                                                                                    \end{cases}$</li>
+                </ul>
+            </li><br>
+            <li>Gradient descent(Vectorized)
+                <ul>
+                    <li>$   \begin{bmatrix}
+                                \theta_{0}\\
+                                \theta_{1}\\
+                                \vdots\\
+                                \theta_{n}
+                                \end{bmatrix} :=    \begin{bmatrix}
+                                                        \theta_{0}\\
+                                                        \theta_{1}\\
+                                                        \vdots\\
+                                                        \theta_{n}
+                                                    \end{bmatrix} - (\frac{\alpha}{m})  \begin{bmatrix} 
+                                                                                            1 & 1 & \cdots & 1\\
+                                                                                            x_{1}^{(1)} & x_{1}^{(2)} & \cdots & x_{1}^{(m)}\\
+                                                                                            \vdots & \vdots & & \vdots\\
+                                                                                            x_{n}^{(1)} & x_{n}^{(2)} & \cdots & x_{n}^{(m)}\\
+                                                                                        \end{bmatrix}   \begin{bmatrix}
+                                                                                                            \frac{1}{1 + e^{-(\theta_{0} + \theta_{1}x_{1}^{(1)} + \cdots + \theta_{n}x_{n}^{(1)})}} - y^{(1)}\\
+                                                                                                            \frac{1}{1 + e^{-(\theta_{0} + \theta_{1}x_{1}^{(2)} + \cdots + \theta_{n}x_{n}^{(2)})}} - y^{(2)}\\
+                                                                                                            \vdots\\
+                                                                                                            \frac{1}{1 + e^{-(\theta_{0} + \theta_{1}x_{1}^{(m)} + \cdots + \theta_{n}x_{n}^{(m)})}} - y^{(m)}
+                                                                                                        \end{bmatrix}$</li>
+                    <li>Summary : $\theta := \theta - (\frac{\alpha}{m})X^{T}(\sigma(X\theta) - Y)$</li>
+                </ul>
+            </li><br>
+            <li>Calculation process
+                <ul>
+                    <li>Let $z^{(i)} = \theta_{0} + \theta_{1}x_{1}^{(i)} + \theta_{2}x_{2}^{(i)} + \cdots + \theta_{n}x_{n}^{(i)}$ , we have $J(\theta) = (-\frac{1}{m})\sum_{i = 1}^{m}[y^{(i)}\log\sigma(z^{(i)}) + (1 - y^{(i)})\log(1 - \sigma(z^{(i)}))]$</li>
+                    <li>$\frac{\partial J(\theta)}{\partial \theta_{j}} = (-\frac{1}{m})\sum_{i = 1}^{m}\left(\frac{\partial J(\theta)}{\partial \sigma(z^{(i)})}\frac{\partial \sigma(z^{(i)})}{\partial z^{(i)}}\frac{\partial z^{(i)}}{\partial \theta_{j}}\right)$</li>
+                    <li>$\frac{\partial J(\theta)}{\partial \sigma(z^{(i)})} = \frac{y^{(i)}}{\sigma(z^{(i)})} - \frac{1 - y^{(i)}}{1 - \sigma(z^{(i)})}$</li>
+                    <li>$\frac{\partial \sigma(z^{(i)})}{\partial z^{(i)}} = \frac{e^{-z^{(i)}}}{(1 + e^{-z^{(i)}})^{2}} = \sigma(z^{(i)})(1 - \sigma(z^{(i)}))$</li>
+                    <li>$\frac{\partial z^{(i)}}{\partial \theta_{j}} = x_{j}^{(i)}$</li>
+                    <li>$   \begin{align*}
+                                \frac{\partial J(\theta)}{\partial \theta_{j}} 
+                                & = (-\frac{1}{m})\sum_{i = 1}^{m}\left\{\left(\frac{y^{(i)}}{\sigma(z^{(i)})} - \frac{1 - y^{(i)}}{1 - \sigma(z^{(i)})}\right)\left[\sigma(z^{(i)})(1 - \sigma(z^{(i)}))\right](x_{j}^{(i)})\right\}\\
+                                & = (-\frac{1}{m})\sum_{i = 1}^{m} \left\{[y^{(i)}(1 - \sigma(z^{(i)})) - (1 - y^{(i)})\sigma(z^{(i)})]x_{j}^{(i)}\right\}\\
+                                & = (-\frac{1}{m})\sum_{i = 1}^{m}[(y^{(i)} - \sigma(z^{(i)}))x_{j}^{(i)}]\\
+                                & = \frac{1}{m}\sum_{i = 1}^{m}[(h_{\theta}(x^{(i)}) - y^{(i)})x_{j}^{(i)}]\\
+                            \end{align*}$</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3 id="Neuron_network">Neuron network</h3>
+        <ol>
+            <li>Notation
+                <ul>
+                    <li>$l$ : number of layers in neuron network</li>
+                    <li>$n_{[k]}$ : number of neurons in k-th layer.</li>
+                    <li>$a^{[k]}(z)$ : activate function in k-th layer.</li>                            
+                    <li>$\hat{a}_{j}^{(i)[k]}$ : j-th activate value of i-th training sample in k-th layer.</li>
+                    <li>$\theta_{i}^{[k]} =     \begin{bmatrix}
+                                                    \theta_{i1}^{[k]} & \theta_{i2}^{[k]} & \cdots & \theta_{in_{[k - 1]}}^{[k]}
+                                                \end{bmatrix}$ : parameters for caculating i-th activate value in k-th layer.</li>
+                    <li>$b_{i}^{[k]}$ : bias for caculating i-th activate value in k-th layer.</li>
+                    <li>For convenient, we regard input layer as layer $0$ and output layer as layer $l$ and regard input features as activate values in layer $0$.</li>
+                </ul>
+            </li><br>
+            <li>Notation(Vectorized)
+                <ul>
+                    <li>$A^{[k]} =  \begin{bmatrix} 
+                                        \mid & \mid & & \mid\\
+                                        A^{(1)[k]} & A^{(2)[k]} & \cdots & A^{(m)[k]}\\
+                                        \mid & \mid & & \mid
+                                    \end{bmatrix}$ , where $A^{(i)[k]} =    \begin{bmatrix} 
+                                                                                \hat{a}_{1}^{(i)[k]}\\
+                                                                                \hat{a}_{2}^{(i)[k]}\\
+                                                                                \vdots\\
+                                                                                \hat{a}_{n_{[k]}}^{(i)[k]}\\
+                                                                            \end{bmatrix}$</li>
+                    <li>$\Theta^{[k]} =     \begin{bmatrix}
+                                                -\;\theta_{1}^{[k]}\;-\\
+                                                -\;\theta_{2}^{[k]}\;-\\
+                                                \vdots\\
+                                                -\;\theta_{n_{k}}^{[k]}\;-
+                                            \end{bmatrix}$</li>
+                    <li>$B^{[k]} = \overbrace{  \begin{bmatrix}
+                                                    \mid & \mid & & \mid\\
+                                                b^{[k]} & b^{[k]} & \cdots & b^{[k]}\\
+                                                \mid & \mid & & \mid
+                                                \end{bmatrix}
+                                    }^{m\text{ times}}$ , where $b^{[k]} =  \begin{bmatrix}
+                                                                                b_{1}^{[k]}\\
+                                                                                b_{2}^{[k]}\\
+                                                                                \vdots\\
+                                                                                b_{n_{[k]}}^{[k]}\\
+                                                                            \end{bmatrix}$</li>
+                    <li>$   \begin{cases} 
+                                A^{[k]} \in \mathbb{R}^{n_{[k]} \times m}\\
+                                \Theta^{[k]} \in \mathbb{R}^{n_{[k]} \times n_{[k-1]}}\\
+                                B^{[k]} \in \mathbb{R}^{n_{[k]} \times m}\\
+                            \end{cases}$</li>
+                </ul>
+            </li><br>
+            <li>Forward propagation
+                <ul>
+                    <li>for($1 \leq k \leq l$){<br>
+                        &emsp;&emsp;$   \begin{align*}
+                                            &Z^{[k]} = \Theta^{[k]}A^{[k - 1]} + B^{[k]}\\
+                                            &A^{[k]} = a^{[k]}\left(Z^{[k]}\right )
+                                        \end{align*}$<br>
+                        }</li>
+                </ul>
+            </li>
+        </ol>
+    </body>
+</html>
